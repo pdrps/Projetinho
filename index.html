@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nós ❤</title>
+<style>
+  :root {
+    --bg1: #ff9a9e;
+    --bg2: #fad0c4;
+    --cor: #e63e6d;
+    --cor-escura: #b02350;
+    --card: rgba(255, 255, 255, 0.85);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    color: #4a1a2c;
+    overflow-x: hidden;
+  }
+  .pagina { display: none; min-height: 100vh; padding: 24px 16px; position: relative; z-index: 1; }
+  .pagina.ativa { display: flex; flex-direction: column; align-items: center; }
+
+  /* ---------- Home ---------- */
+  #home { justify-content: center; text-align: center; gap: 24px; }
+  .coracao {
+    font-size: clamp(120px, 30vw, 220px);
+    color: var(--cor);
+    animation: bater 1.4s infinite;
+    filter: drop-shadow(0 8px 16px rgba(176, 35, 80, .35));
+    line-height: 1;
+  }
+  @keyframes bater { 0%,100% { transform: scale(1); } 15% { transform: scale(1.12); } 30% { transform: scale(1); } 45% { transform: scale(1.08); } }
+  .nomes { font-size: clamp(28px, 7vw, 48px); font-weight: 700; color: var(--cor-escura); }
+  .frase { font-size: 18px; opacity: .85; }
+  .menu { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 8px; }
+
+  button, .btn {
+    background: var(--cor); color: #fff; border: none; border-radius: 999px;
+    padding: 12px 22px; font-size: 16px; cursor: pointer; font-weight: 600;
+    transition: transform .15s, background .15s;
+  }
+  button:hover { background: var(--cor-escura); transform: translateY(-2px); }
+  .voltar { align-self: flex-start; background: rgba(255,255,255,.7); color: var(--cor-escura); margin-bottom: 12px; }
+  .voltar:hover { background: #fff; }
+
+  /* ---------- Listas ---------- */
+  .caixa { width: 100%; max-width: 560px; background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+  h2 { color: var(--cor-escura); margin-bottom: 14px; text-align: center; }
+  .form { display: flex; gap: 8px; margin-bottom: 16px; }
+  .form input {
+    flex: 1; min-width: 0; padding: 12px 14px; border-radius: 999px;
+    border: 2px solid #f3b6c5; font-size: 16px; outline: none;
+  }
+  .form input:focus { border-color: var(--cor); }
+  ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  li {
+    display: flex; align-items: center; gap: 10px; background: #fff;
+    padding: 10px 14px; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,.06);
+  }
+  li span { flex: 1; word-break: break-word; }
+  li.feito span { text-decoration: line-through; opacity: .5; }
+  li input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--cor); }
+  li .apagar { background: none; color: #999; padding: 4px 8px; font-size: 18px; }
+  li .apagar:hover { background: none; color: var(--cor); transform: none; }
+  .vazio { text-align: center; opacity: .6; padding: 12px; }
+
+  /* ---------- Música ---------- */
+  .musica-box { text-align: center; display: flex; flex-direction: column; gap: 16px; align-items: center; }
+  .disco { font-size: 90px; }
+  .tocando .disco { animation: girar 3s linear infinite; }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  audio { width: 100%; }
+  .dica { font-size: 14px; opacity: .7; }
+
+  /* ---------- Corações flutuando ---------- */
+  .flutuante {
+    position: fixed; bottom: -40px; z-index: 0; color: rgba(255,255,255,.7);
+    animation: subir linear forwards; pointer-events: none;
+  }
+  @keyframes subir { to { transform: translateY(-110vh) rotate(25deg); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<section id="home" class="pagina ativa">
+  <div class="coracao">❤</div>
+  <div class="nomes" id="nomes"></div>
+  <p class="frase" id="frase"></p>
+  <div class="menu">
+    <button data-ir="comer">🍽 Onde comer</button>
+    <button data-ir="filmes">🎬 Filmes</button>
+    <button data-ir="musica">🎵 Nossa música</button>
+  </div>
+</section>
+
+<!-- ============ COMER ============ -->
+<section id="comer" class="pagina">
+  <button class="voltar" data-ir="home">← Voltar</button>
+  <div class="caixa">
+    <h2>🍽 Lugares para comer</h2>
+    <div class="form">
+      <input type="text" id="input-comer" placeholder="Nome do lugar..." maxlength="80">
+      <button id="add-comer">Salvar</button>
+    </div>
+    <ul id="lista-comer"></ul>
+  </div>
+</section>
+
+<!-- ============ FILMES ============ -->
+<section id="filmes" class="pagina">
+  <button class="voltar" data-ir="home">← Voltar</button>
+  <div class="caixa">
+    <h2>🎬 Filmes para assistir</h2>
+    <div class="form">
+      <input type="text" id="input-filmes" placeholder="Nome do filme..." maxlength="80">
+      <button id="add-filmes">Salvar</button>
+    </div>
+    <ul id="lista-filmes"></ul>
+  </div>
+</section>
+
+<!-- ============ MÚSICA ============ -->
+<section id="musica" class="pagina">
+  <button class="voltar" data-ir="home">← Voltar</button>
+  <div class="caixa musica-box" id="musica-box">
+    <h2>🎵 Nossa música</h2>
+    <div class="disco">💿</div>
+    <p id="nome-musica"></p>
+    <audio id="player" controls></audio>
+    <p class="dica">Coloque o arquivo da música na mesma pasta do site com o nome definido em <b>CONFIG.musicaArquivo</b>.</p>
+  </div>
+</section>
+
+<script>
+  // ================== CONFIGURAÇÃO (edite aqui!) ==================
+  const CONFIG = {
+    nome1: "Gabriella",
+    nome2: "Pedro",
+    frase: "Nossa historinha, nossos planos ❤",
+    musicaArquivo: "musica.mp3",       // coloque o arquivo na mesma pasta
+    musicaTitulo: "Nossa música"
+  };
+  // ================================================================
+
+  // ---------- Navegação entre páginas ----------
+  function ir(id) {
+    document.querySelectorAll(".pagina").forEach(p => p.classList.remove("ativa"));
+    document.getElementById(id).classList.add("ativa");
+    window.scrollTo(0, 0);
+    if (id !== "musica") document.getElementById("player").pause();
+  }
+  document.querySelectorAll("[data-ir]").forEach(b =>
+    b.addEventListener("click", () => ir(b.dataset.ir))
+  );
+
+  // ---------- Textos da home ----------
+  document.getElementById("nomes").textContent = CONFIG.nome1 + " ❤ " + CONFIG.nome2;
+  document.getElementById("frase").textContent = CONFIG.frase;
+  document.title = CONFIG.nome1 + " & " + CONFIG.nome2;
+
+  // ---------- Armazenamento (localStorage, sem banco de dados) ----------
+  function carregar(chave) {
+    try { return JSON.parse(localStorage.getItem(chave)) || []; }
+    catch (e) { return []; }
+  }
+  function salvar(chave, dados) {
+    try { localStorage.setItem(chave, JSON.stringify(dados)); }
+    catch (e) { alert("Não consegui salvar neste navegador."); }
+  }
+
+  // ---------- Lista genérica (serve para comer e filmes) ----------
+  function criarLista(chave, idInput, idBotao, idUl) {
+    const input = document.getElementById(idInput);
+    const ul = document.getElementById(idUl);
+    let itens = carregar(chave);
+
+    function desenhar() {
+      ul.innerHTML = "";
+      if (itens.length === 0) {
+        ul.innerHTML = '<p class="vazio">Nada por aqui ainda... adicione o primeiro! ✨</p>';
+        return;
+      }
+      itens.forEach((item, i) => {
+        const li = document.createElement("li");
+        if (item.feito) li.classList.add("feito");
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = item.feito;
+        cb.addEventListener("change", () => { itens[i].feito = cb.checked; salvar(chave, itens); desenhar(); });
+
+        const txt = document.createElement("span");
+        txt.textContent = item.nome;   // textContent evita injeção de HTML
+
+        const del = document.createElement("button");
+        del.className = "apagar";
+        del.textContent = "✕";
+        del.title = "Remover";
+        del.addEventListener("click", () => { itens.splice(i, 1); salvar(chave, itens); desenhar(); });
+
+        li.append(cb, txt, del);
+        ul.appendChild(li);
+      });
+    }
+
+    function adicionar() {
+      const nome = input.value.trim();
+      if (!nome) return;
+      itens.push({ nome, feito: false });
+      salvar(chave, itens);
+      input.value = "";
+      desenhar();
+    }
+
+    document.getElementById(idBotao).addEventListener("click", adicionar);
+    input.addEventListener("keydown", e => { if (e.key === "Enter") adicionar(); });
+    desenhar();
+  }
+
+  criarLista("lugares-comer", "input-comer", "add-comer", "lista-comer");
+  criarLista("filmes-assistir", "input-filmes", "add-filmes", "lista-filmes");
+
+  // ---------- Música ----------
+  const player = document.getElementById("player");
+  player.src = CONFIG.musicaArquivo;
+  document.getElementById("nome-musica").textContent = CONFIG.musicaTitulo;
+  const musicaBox = document.getElementById("musica-box");
+  player.addEventListener("play", () => musicaBox.classList.add("tocando"));
+  player.addEventListener("pause", () => musicaBox.classList.remove("tocando"));
+  player.addEventListener("ended", () => musicaBox.classList.remove("tocando"));
+
+  // ---------- Corações flutuando no fundo ----------
+  setInterval(() => {
+    const h = document.createElement("div");
+    h.className = "flutuante";
+    h.textContent = "❤";
+    h.style.left = Math.random() * 100 + "vw";
+    h.style.fontSize = 14 + Math.random() * 28 + "px";
+    h.style.animationDuration = 6 + Math.random() * 6 + "s";
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 12000);
+  }, 700);
+</script>
+</body>
+</html>
