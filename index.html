@@ -81,6 +81,17 @@
     animation: subir linear forwards; pointer-events: none;
   }
   @keyframes subir { to { transform: translateY(-110vh) rotate(25deg); opacity: 0; } }
+
+
+  .contador { display: flex; gap: 12px; justify-content: center; }
+.contador div {
+  background: var(--card); border-radius: 16px; padding: 10px 14px;
+  min-width: 70px; box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  display: flex; flex-direction: column;
+}
+.contador strong { font-size: 28px; color: var(--cor-escura); }
+.contador small { font-size: 12px; opacity: .7; }
+
 </style>
 </head>
 <body>
@@ -90,6 +101,12 @@
   <div class="coracao">❤</div>
   <div class="nomes" id="nomes"></div>
   <p class="frase" id="frase"></p>
+  <div class="contador" id="contador">
+  <div><strong id="c-dias">0</strong><small>dias</small></div>
+  <div><strong id="c-horas">0</strong><small>horas</small></div>
+  <div><strong id="c-min">0</strong><small>min</small></div>
+  <div><strong id="c-seg">0</strong><small>seg</small></div>
+</div>
   <div class="menu">
     <button data-ir="comer">🍽 Onde comer</button>
     <button data-ir="filmes">🎬 Filmes</button>
@@ -136,13 +153,33 @@
 </section>
 
 <script>
+
+  // ---------- Contador de tempo juntos ----------
+function atualizarContador() {
+  const inicio = new Date(CONFIG.dataInicio);
+  let diff = Math.max(0, Math.floor((Date.now() - inicio) / 1000));
+
+  const dias = Math.floor(diff / 86400); diff %= 86400;
+  const horas = Math.floor(diff / 3600); diff %= 3600;
+  const min = Math.floor(diff / 60);
+  const seg = diff % 60;
+
+  document.getElementById("c-dias").textContent = dias;
+  document.getElementById("c-horas").textContent = horas;
+  document.getElementById("c-min").textContent = min;
+  document.getElementById("c-seg").textContent = seg;
+}
+atualizarContador();
+setInterval(atualizarContador, 1000);
+
   // ================== CONFIGURAÇÃO (edite aqui!) ==================
   const CONFIG = {
     nome1: "Gabriella",
     nome2: "Pedro",
     frase: "Nossa historinha, nossos planos ❤",
     musicaArquivo: "musica.mp3",       // coloque o arquivo na mesma pasta
-    musicaTitulo: "Nossa música"
+    musicaTitulo: "Nossa música",
+    dataInicio: "2026-07-24T00:00:00" 
   };
   // ================================================================
 
