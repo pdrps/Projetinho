@@ -155,7 +155,20 @@
 <script>
 
   // ---------- Contador de tempo juntos ----------
-function atualizarContador() {
+
+
+  // ================== CONFIGURAÇÃO (edite aqui!) ==================
+  const CONFIG = {
+    nome1: "Gabriella",
+    nome2: "Pedro",
+    frase: "Nossa historinha, nossos planos ❤",
+    musicaArquivo: "musica.mp3",       // coloque o arquivo na mesma pasta
+    musicaTitulo: "Nossa música",
+    dataInicio: "2026-07-24T00:00:00" 
+  };
+  // ================================================================
+
+  function atualizarContador() {
   const inicio = new Date(CONFIG.dataInicio);
   let diff = Math.max(0, Math.floor((Date.now() - inicio) / 1000));
 
@@ -171,17 +184,6 @@ function atualizarContador() {
 }
 atualizarContador();
 setInterval(atualizarContador, 1000);
-
-  // ================== CONFIGURAÇÃO (edite aqui!) ==================
-  const CONFIG = {
-    nome1: "Gabriella",
-    nome2: "Pedro",
-    frase: "Nossa historinha, nossos planos ❤",
-    musicaArquivo: "musica.mp3",       // coloque o arquivo na mesma pasta
-    musicaTitulo: "Nossa música",
-    dataInicio: "2026-07-24T00:00:00" 
-  };
-  // ================================================================
 
   // ---------- Navegação entre páginas ----------
   function ir(id) {
