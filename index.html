@@ -177,12 +177,16 @@
   <p id="lightbox-legenda"></p>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
   // ================== CONFIGURAÇÃO (edite aqui!) ==================
   const CONFIG = {
     nome1: "Gabriella",
     nome2: "Pedro",
     dataInicio: "2026-07-24T00:00:00",
+    databaseURL: "COLE_AQUI_O_ENDERECO_DO_FIREBASE",
+    sala: "invente-um-codigo-grande-e-unico-123xyz",
 
     // Fotos da galeria: coloque os arquivos na pasta "imagens"
     // e adicione uma linha para cada foto (legenda é opcional).
@@ -239,11 +243,26 @@
     catch (e) { alert("Não consegui salvar neste navegador."); }
   }
 
+  // ---------- Banco online (Firebase) ----------
+  let db = null;
+  if (CONFIG.databaseURL && !CONFIG.databaseURL.startsWith("COLE")) {
+    try {
+      firebase.initializeApp({ databaseURL: CONFIG.databaseURL });
+      db = firebase.database();
+    } catch (e) { console.error("Firebase não iniciou:", e); }
+  }
+
   // ---------- Lista genérica (serve para comer e filmes) ----------
   function criarLista(chave, idInput, idBotao, idUl) {
     const input = document.getElementById(idInput);
     const ul = document.getElementById(idUl);
     let itens = carregar(chave);
+    const ref = db ? db.ref("casal/" + CONFIG.sala + "/" + chave) : null;
+
+    function persistir() {
+      salvar(chave, itens);                                  // cópia no aparelho
+      if (ref) ref.set({ atualizado: Date.now(), itens });   // cópia online
+    }
 
     function desenhar() {
       ul.innerHTML = "";
@@ -258,16 +277,16 @@
         const cb = document.createElement("input");
         cb.type = "checkbox";
         cb.checked = item.feito;
-        cb.addEventListener("change", () => { itens[i].feito = cb.checked; salvar(chave, itens); desenhar(); });
+        cb.addEventListener("change", () => { itens[i].feito = cb.checked; persistir(); desenhar(); });
 
         const txt = document.createElement("span");
-        txt.textContent = item.nome;   // textContent evita injeção de HTML
+        txt.textContent = item.nome;
 
         const del = document.createElement("button");
         del.className = "apagar";
         del.textContent = "✕";
         del.title = "Remover";
-        del.addEventListener("click", () => { itens.splice(i, 1); salvar(chave, itens); desenhar(); });
+        del.addEventListener("click", () => { itens.splice(i, 1); persistir(); desenhar(); });
 
         li.append(cb, txt, del);
         ul.appendChild(li);
@@ -278,13 +297,27 @@
       const nome = input.value.trim();
       if (!nome) return;
       itens.push({ nome, feito: false });
-      salvar(chave, itens);
+      persistir();
       input.value = "";
       desenhar();
     }
 
     document.getElementById(idBotao).addEventListener("click", adicionar);
     input.addEventListener("keydown", e => { if (e.key === "Enter") adicionar(); });
+
+    // Atualiza em tempo real quando o outro celular muda algo
+    if (ref) {
+      ref.on("value", snap => {
+        const remoto = snap.val();
+        if (!remoto) {                       // banco vazio: sobe o que já existe no aparelho
+          if (itens.length > 0) persistir();
+          return;
+        }
+        itens = remoto.itens || [];
+        salvar(chave, itens);
+        desenhar();
+      });
+    }
     desenhar();
   }
 
