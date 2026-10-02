@@ -34,7 +34,6 @@
   }
   @keyframes bater { 0%,100% { transform: scale(1); } 15% { transform: scale(1.12); } 30% { transform: scale(1); } 45% { transform: scale(1.08); } }
   .nomes { font-size: clamp(28px, 7vw, 48px); font-weight: 700; color: var(--cor-escura); }
-  .frase { font-size: 18px; opacity: .85; }
   .menu { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 8px; }
 
   button, .btn {
@@ -45,6 +44,16 @@
   button:hover { background: var(--cor-escura); transform: translateY(-2px); }
   .voltar { align-self: flex-start; background: rgba(255,255,255,.7); color: var(--cor-escura); margin-bottom: 12px; }
   .voltar:hover { background: #fff; }
+
+  /* ---------- Contador ---------- */
+  .contador { display: flex; gap: 12px; justify-content: center; }
+  .contador div {
+    background: var(--card); border-radius: 16px; padding: 10px 14px;
+    min-width: 70px; box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    display: flex; flex-direction: column;
+  }
+  .contador strong { font-size: 28px; color: var(--cor-escura); }
+  .contador small { font-size: 12px; opacity: .7; }
 
   /* ---------- Listas ---------- */
   .caixa { width: 100%; max-width: 560px; background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
@@ -67,13 +76,37 @@
   li .apagar:hover { background: none; color: var(--cor); transform: none; }
   .vazio { text-align: center; opacity: .6; padding: 12px; }
 
-  /* ---------- Música ---------- */
-  .musica-box { text-align: center; display: flex; flex-direction: column; gap: 16px; align-items: center; }
-  .disco { font-size: 90px; }
-  .tocando .disco { animation: girar 3s linear infinite; }
-  @keyframes girar { to { transform: rotate(360deg); } }
-  audio { width: 100%; }
-  .dica { font-size: 14px; opacity: .7; }
+  /* ---------- Galeria ---------- */
+  .caixa-galeria { max-width: 900px; }
+  .galeria {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .galeria .item {
+    position: relative; aspect-ratio: 1 / 1; overflow: hidden;
+    border-radius: 14px; cursor: pointer; background: #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,.12);
+    transition: transform .2s;
+  }
+  .galeria .item:hover { transform: scale(1.04); }
+  .galeria img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .galeria .legenda {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 8px 6px;
+    background: linear-gradient(transparent, rgba(0,0,0,.6));
+    color: #fff; font-size: 13px; text-align: center;
+  }
+
+  /* Foto ampliada */
+  .lightbox {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,.85); padding: 20px;
+    flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    cursor: pointer;
+  }
+  .lightbox.aberto { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 80vh; border-radius: 12px; }
+  .lightbox p { color: #fff; font-size: 18px; text-align: center; }
 
   /* ---------- Corações flutuando ---------- */
   .flutuante {
@@ -81,17 +114,6 @@
     animation: subir linear forwards; pointer-events: none;
   }
   @keyframes subir { to { transform: translateY(-110vh) rotate(25deg); opacity: 0; } }
-
-
-  .contador { display: flex; gap: 12px; justify-content: center; }
-.contador div {
-  background: var(--card); border-radius: 16px; padding: 10px 14px;
-  min-width: 70px; box-shadow: 0 4px 12px rgba(0,0,0,.1);
-  display: flex; flex-direction: column;
-}
-.contador strong { font-size: 28px; color: var(--cor-escura); }
-.contador small { font-size: 12px; opacity: .7; }
-
 </style>
 </head>
 <body>
@@ -99,18 +121,18 @@
 <!-- ============ HOME ============ -->
 <section id="home" class="pagina ativa">
   <div class="coracao">❤</div>
-  <img src="imagens/foto_capa.png" alt="Foto do casal" style="width: 400px; height: 300px; border-radius: 10%; margin-bottom: 16px;">
+  <img src="imagens/foto_capa.png" alt="Foto do casal" style="width: 400px; max-width: 90%; height: 300px; object-fit: cover; border-radius: 10%; margin-bottom: 16px;">
   <div class="nomes" id="nomes"></div>
   <div class="contador" id="contador">
-  <div><strong id="c-dias">0</strong><small>dias</small></div>
-  <div><strong id="c-horas">0</strong><small>horas</small></div>
-  <div><strong id="c-min">0</strong><small>min</small></div>
-  <div><strong id="c-seg">0</strong><small>seg</small></div>
-</div>
+    <div><strong id="c-dias">0</strong><small>dias</small></div>
+    <div><strong id="c-horas">0</strong><small>horas</small></div>
+    <div><strong id="c-min">0</strong><small>min</small></div>
+    <div><strong id="c-seg">0</strong><small>seg</small></div>
+  </div>
   <div class="menu">
     <button data-ir="comer">🍽 Onde comer</button>
     <button data-ir="filmes">🎬 Filmes</button>
-    <button data-ir="musica">🎵 Nossa música</button>
+    <button data-ir="galeria">📸 Nossa galeria</button>
   </div>
 </section>
 
@@ -140,56 +162,63 @@
   </div>
 </section>
 
-<!-- ============ MÚSICA ============ -->
-<section id="musica" class="pagina">
+<!-- ============ GALERIA ============ -->
+<section id="galeria" class="pagina">
   <button class="voltar" data-ir="home">← Voltar</button>
-  <div class="caixa musica-box" id="musica-box">
-    <h2>🎵 Nossa música</h2>
-    <div class="disco">💿</div>
-    <p id="nome-musica"></p>
-    <audio id="player" controls></audio>
-    <p class="dica">Coloque o arquivo da música na mesma pasta do site com o nome definido em <b>CONFIG.musicaArquivo</b>.</p>
+  <div class="caixa caixa-galeria">
+    <h2>📸 Nossa galeria</h2>
+    <div class="galeria" id="galeria-grid"></div>
   </div>
 </section>
 
+<!-- Foto ampliada (abre ao clicar em uma foto da galeria) -->
+<div class="lightbox" id="lightbox">
+  <img id="lightbox-img" src="" alt="">
+  <p id="lightbox-legenda"></p>
+</div>
+
 <script>
-
-  // ---------- Contador de tempo juntos ----------
-
-
   // ================== CONFIGURAÇÃO (edite aqui!) ==================
   const CONFIG = {
     nome1: "Gabriella",
     nome2: "Pedro",
-    musicaArquivo: "musica.mp3",       // coloque o arquivo na mesma pasta
-    musicaTitulo: "Nossa música",
-    dataInicio: "2026-07-24T00:00:00" 
+    dataInicio: "2026-07-24T00:00:00",
+
+    // Fotos da galeria: coloque os arquivos na pasta "imagens"
+    // e adicione uma linha para cada foto (legenda é opcional).
+    fotos: [
+      { arquivo: "imagens/foto_formatura.jpg", legenda: "18/08/2026" },
+      { arquivo: "imagens/foto_festa.jpg", legenda: "23/08/2026" },
+      { arquivo: "imagens/foto_rhua.jpg", legenda: "05/09/2026" },
+      { arquivo: "imagens/foto_elevador.jpeg", legenda: "05/09/2026" }
+      
+    ]
   };
   // ================================================================
 
+  // ---------- Contador de tempo juntos ----------
   function atualizarContador() {
-  const inicio = new Date(CONFIG.dataInicio);
-  let diff = Math.max(0, Math.floor((Date.now() - inicio) / 1000));
+    const inicio = new Date(CONFIG.dataInicio);
+    let diff = Math.max(0, Math.floor((Date.now() - inicio) / 1000));
 
-  const dias = Math.floor(diff / 86400); diff %= 86400;
-  const horas = Math.floor(diff / 3600); diff %= 3600;
-  const min = Math.floor(diff / 60);
-  const seg = diff % 60;
+    const dias = Math.floor(diff / 86400); diff %= 86400;
+    const horas = Math.floor(diff / 3600); diff %= 3600;
+    const min = Math.floor(diff / 60);
+    const seg = diff % 60;
 
-  document.getElementById("c-dias").textContent = dias;
-  document.getElementById("c-horas").textContent = horas;
-  document.getElementById("c-min").textContent = min;
-  document.getElementById("c-seg").textContent = seg;
-}
-atualizarContador();
-setInterval(atualizarContador, 1000);
+    document.getElementById("c-dias").textContent = dias;
+    document.getElementById("c-horas").textContent = horas;
+    document.getElementById("c-min").textContent = min;
+    document.getElementById("c-seg").textContent = seg;
+  }
+  atualizarContador();
+  setInterval(atualizarContador, 1000);
 
   // ---------- Navegação entre páginas ----------
   function ir(id) {
     document.querySelectorAll(".pagina").forEach(p => p.classList.remove("ativa"));
     document.getElementById(id).classList.add("ativa");
     window.scrollTo(0, 0);
-    if (id !== "musica") document.getElementById("player").pause();
   }
   document.querySelectorAll("[data-ir]").forEach(b =>
     b.addEventListener("click", () => ir(b.dataset.ir))
@@ -197,7 +226,6 @@ setInterval(atualizarContador, 1000);
 
   // ---------- Textos da home ----------
   document.getElementById("nomes").textContent = CONFIG.nome1 + " ❤ " + CONFIG.nome2;
-  document.getElementById("frase").textContent = CONFIG.frase;
   document.title = CONFIG.nome1 + " & " + CONFIG.nome2;
 
   // ---------- Armazenamento (localStorage, sem banco de dados) ----------
@@ -262,14 +290,46 @@ setInterval(atualizarContador, 1000);
   criarLista("lugares-comer", "input-comer", "add-comer", "lista-comer");
   criarLista("filmes-assistir", "input-filmes", "add-filmes", "lista-filmes");
 
-  // ---------- Música ----------
-  const player = document.getElementById("player");
-  player.src = CONFIG.musicaArquivo;
-  document.getElementById("nome-musica").textContent = CONFIG.musicaTitulo;
-  const musicaBox = document.getElementById("musica-box");
-  player.addEventListener("play", () => musicaBox.classList.add("tocando"));
-  player.addEventListener("pause", () => musicaBox.classList.remove("tocando"));
-  player.addEventListener("ended", () => musicaBox.classList.remove("tocando"));
+  // ---------- Galeria de fotos ----------
+  const grid = document.getElementById("galeria-grid");
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+  const lightboxLegenda = document.getElementById("lightbox-legenda");
+
+  if (CONFIG.fotos.length === 0) {
+    grid.innerHTML = '<p class="vazio">Nenhuma foto ainda... adicione em CONFIG.fotos 📷</p>';
+  }
+
+  CONFIG.fotos.forEach(foto => {
+    const item = document.createElement("div");
+    item.className = "item";
+
+    const img = document.createElement("img");
+    img.src = foto.arquivo;
+    img.alt = foto.legenda || "Foto do casal";
+    img.loading = "lazy";
+    item.appendChild(img);
+
+    if (foto.legenda) {
+      const leg = document.createElement("div");
+      leg.className = "legenda";
+      leg.textContent = foto.legenda;
+      item.appendChild(leg);
+    }
+
+    item.addEventListener("click", () => {
+      lightboxImg.src = foto.arquivo;
+      lightboxLegenda.textContent = foto.legenda || "";
+      lightbox.classList.add("aberto");
+    });
+    grid.appendChild(item);
+  });
+
+  // Clicar em qualquer lugar (ou apertar Esc) fecha a foto ampliada
+  lightbox.addEventListener("click", () => lightbox.classList.remove("aberto"));
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") lightbox.classList.remove("aberto");
+  });
 
   // ---------- Corações flutuando no fundo ----------
   setInterval(() => {
